@@ -25,26 +25,38 @@ def root(request: Request):
         return JSONResponse(content={"message": f"""La clé API fournie: {x_api_key} ; n'est pas reconnue."""})
 
 
-@app.get("/{full_path:path}")
-def catch_all(full_path: str):
-    with open("404.html", "r", encoding="utf-8") as file:
-        html_content = file.read()
-    return Response(content=html_content, status_code=404, media_type="text/html")
-
-
 class EventModel(BaseModel):
     name: str
     description: str
     start_date: str
     end_date: str
 
+
 events_store: List[EventModel] = []
+
 
 def serialized_stored_events():
     events_converted = []
     for event in events_store:
-      events_converted.append(event.model_dump())
+        events_converted.append(event.model_dump())
     return events_converted
+
+
 @app.get("/events")
 def list_events():
     return {"events": serialized_stored_events()}
+
+
+@app.post("/events")
+def create_event(events: List[EventModel]):
+    for event in events:
+        events_store.append(event)
+    return {"events": serialized_stored_events()}
+
+
+# 404 handling
+@app.get("/{full_path:path}")
+def catch_all(full_path: str):
+    with open("404.html", "r", encoding="utf-8") as file:
+        html_content = file.read()
+    return Response(content=html_content, status_code=404, media_type="text/html")

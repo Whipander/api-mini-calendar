@@ -1,7 +1,10 @@
 import json
 from fastapi import FastAPI
+from pydantic import BaseModel
 from starlette.responses import Response, JSONResponse
 from starlette.requests import Request
+from typing import List
+
 app = FastAPI()
 
 
@@ -19,7 +22,7 @@ def root(request: Request):
             html_content = file.read()
         return Response(content=html_content, status_code=200, media_type="text/html")
     else:
-        return JSONResponse(content={"message" : f"""La clé API fournie: {x_api_key} ; n'est pas reconnue."""})
+        return JSONResponse(content={"message": f"""La clé API fournie: {x_api_key} ; n'est pas reconnue."""})
 
 
 @app.get("/{full_path:path}")
@@ -28,3 +31,20 @@ def catch_all(full_path: str):
         html_content = file.read()
     return Response(content=html_content, status_code=404, media_type="text/html")
 
+
+class EventModel(BaseModel):
+    name: str
+    description: str
+    start_date: str
+    end_date: str
+
+events_store: List[EventModel] = []
+
+def serialized_stored_events():
+    events_converted = []
+    for event in events_store:
+      events_converted.append(event.model_dump())
+    return events_converted
+@app.get("/events")
+def list_events():
+    return {"events": serialized_stored_events()}

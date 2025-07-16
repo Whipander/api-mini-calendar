@@ -54,9 +54,23 @@ def create_event(events: List[EventModel]):
     return {"events": serialized_stored_events()}
 
 
+@app.put("/events")
+def update_event(events: List[EventModel]):
+    for eventToUpdate in events:
+        found = False
+        for index, oldEvent in enumerate(events_store):
+            if oldEvent.name == eventToUpdate.name:
+                events_store[index] = eventToUpdate
+                found = True
+                break
+        if not found:
+            events_store.append(eventToUpdate)
+    return {"events": serialized_stored_events()}
+
+
 # 404 handling
 @app.get("/{full_path:path}")
-def catch_all(full_path: str):
+def catch_all():
     with open("404.html", "r", encoding="utf-8") as file:
         html_content = file.read()
     return Response(content=html_content, status_code=404, media_type="text/html")

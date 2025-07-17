@@ -56,15 +56,15 @@ def create_event(events: List[EventModel]):
 
 @app.put("/events")
 def update_event(events: List[EventModel]):
-    for eventToUpdate in events:
+    for eventUpdated in events:
         found = False
         for index, oldEvent in enumerate(events_store):
-            if oldEvent.name == eventToUpdate.name:
-                events_store[index] = eventToUpdate
+            if oldEvent.name == eventUpdated.name:
+                events_store[index] = eventUpdated
                 found = True
                 break
         if not found:
-            events_store.append(eventToUpdate)
+            events_store.append(eventUpdated)
     return {"events": serialized_stored_events()}
 
 
